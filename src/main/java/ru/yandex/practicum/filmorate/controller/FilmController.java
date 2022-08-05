@@ -8,65 +8,51 @@ import ru.yandex.practicum.filmorate.model.Film;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 @RestController
 @RequestMapping("/films")
-public class FilmController {
-    private HashMap<Integer, Film> films = new HashMap<>();
+public class FilmController extends Controller<Film> {
     private static final LocalDate CINEMA_BIRTHDAY = LocalDate.of(1895, Month.DECEMBER, 28);
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
 
+    private static final int MAX_DESCRIPTION_LENGTH = 200;
+
     private int id = 0;
 
-    @GetMapping
-    public List<Film> getFilms() {
-        List<Film> filmsList = new ArrayList<>();
-        for (Film film : films.values()) {
-            filmsList.add(film);
-        }
-        return filmsList;
-    }
-
+    @Override
     @PostMapping
-    public Film addFilm(@Valid  @RequestBody Film film) {
-        if (isValid(film)) {
-            id++;
-            film.setId(id);
-            log.info("Добавлен новый фильм с id" + film.getId());
-            films.put(film.getId(), film);
-            return film;
-        } else {
-            log.info("Введены некорректные данные");
-            throw new ValidationException("Введены некорректные данные");
-        }
+    public Film addObject(@Valid @RequestBody Film film) {
+        super.addObject(film);
+        id++;
+        film.setId(id);
+        log.info("Added a new film with id " + film.getId());
+        objects.put(film.getId(), film);
+        return film;
     }
 
+    @Override
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
-        if (films.containsKey(film.getId())) {
-            if (isValid(film)) {
-                log.info("Обновлена информация о пользователе с id" + film.getId());
-                films.put(film.getId(), film);
-                return film;
-            } else {
-                log.info("Введены некорректные данные");
-                throw new ValidationException("Введены некорректные данные");
-            }
+    public Film updateObject(@Valid @RequestBody Film film) {
+        if (!objects.containsKey(film.getId())) {
+            log.info("The film with the id " + film.getId() + "is missing from the database");
+            throw new ValidationException("The film with the id " + film.getId() + "is missing from the database");
         }
-        log.info("Введены некорректные данные");
-        throw new ValidationException("Введены некорректные данные");
+        super.updateObject(film);
+        log.info("Updated a film with id " + film.getId());
+        objects.put(film.getId(), film);
+        return film;
     }
 
-    private boolean isValid(Film film) {
-        if (!film.getName().isBlank() && (film.getDescription().length() <= 200)
-        && (film.getReleaseDate().isAfter(CINEMA_BIRTHDAY))
-        && (film.getDuration() > 0)) {
-            return true;
-        } else {
-            return false;
+    @Override
+    public void isValid(Film film) {
+        if (film.getName().isBlank()) {
+            throw new ValidationException("The title of the movie cannot be empty");
+        } else if (film.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
+            throw new ValidationException("The maximum length of a movie description is 200 characters");
+        } else if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
+            throw new ValidationException("The release date of the film cannot be earlier than December 28, 1895");
+        } else if (film.getDuration() <= 0) {
+            throw new ValidationException("The duration of the film should be positive");
         }
     }
 }

@@ -1,89 +1,73 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 
 public class UserControllerTest {
 
-    @Test
-    public void addUserWithWrongEmail() {
-        User user = new User();
+    public User user = new User();
+    public UserController userController = new UserController();
+
+    @BeforeEach
+    public void setUserInfo() {
         user.setName("name");
-        user.setBirthday(LocalDate.of(1992,12,4));
+        user.setBirthday(LocalDate.of(1992, 12, 4));
         user.setLogin("login");
         user.setEmail("1111");
-
-        UserController userController = new UserController();
-
-        final ValidationException exception = assertThrows(ValidationException.class,
-                () -> {
-                    userController.addUser(user);;
-                });
-
-        assertEquals("Введены некорректные данные", exception.getMessage());
-    }
-
-    @Test
-    public void addUserWithWrongLogin() {
-        User user = new User();
-        user.setName("name");
-        user.setBirthday(LocalDate.of(1992,12,4));
-        user.setLogin("log in");
         user.setEmail("t@mail.ru");
-
-        UserController userController = new UserController();
-
-        final ValidationException exception = assertThrows(ValidationException.class,
-                () -> {
-                    userController.addUser(user);;
-                });
-
-        assertEquals("Введены некорректные данные", exception.getMessage());
-    }
-
-    @Test
-    public void addUserWithWrongBirthDay() {
-        User user = new User();
-        user.setName("name");
-        user.setBirthday(LocalDate.of(2023,12,4));
-        user.setLogin("login");
-        user.setEmail("t@mail.ru");
-
-        UserController userController = new UserController();
-
-        final ValidationException exception = assertThrows(ValidationException.class,
-                () -> {
-                    userController.addUser(user);;
-                });
-
-        assertEquals("Введены некорректные данные", exception.getMessage());
-    }
-
-    @Test
-    public void addUserWithoutName() {
-        User user = new User();
-        user.setBirthday(LocalDate.of(1992,12,4));
-        user.setLogin("login");
-        user.setEmail("t@mail.ru");
-
-        UserController userController = new UserController();
-
-        assertEquals("login", userController.addUser(user).getName());
     }
 
     @Test
     public void addUserWithCorrectData() {
-        User user = new User();
-        user.setBirthday(LocalDate.of(1992,12,4));
-        user.setName("name");
-        user.setLogin("login");
-        user.setEmail("t@mail.ru");
+        assertEquals(userController.addObject(user), user);
+    }
 
-        UserController userController = new UserController();
+    @Test
+    public void addUserWithWrongEmail() {
+        user.setEmail(null);
 
-        assertEquals(userController.addUser(user), user);
+        final ValidationException exception = assertThrows(ValidationException.class,
+                () -> {
+                    userController.addObject(user);
+                });
+
+        assertEquals("The email cannot be empty and must contain the character @", exception.getMessage());
+    }
+
+    @Test
+    public void addUserWithWrongLogin() {
+        user.setLogin("log in");
+
+        final ValidationException exception = assertThrows(ValidationException.class,
+                () -> {
+                    userController.addObject(user);
+                });
+
+        assertEquals("The login cannot be empty and contain spaces", exception.getMessage());
+    }
+
+    @Test
+    public void addUserWithWrongBirthDay() {
+        user.setBirthday(LocalDate.of(2023, 12, 4));
+
+        final ValidationException exception = assertThrows(ValidationException.class,
+                () -> {
+                    userController.addObject(user);
+                });
+
+        assertEquals("The date of birth cannot be in the future", exception.getMessage());
+    }
+
+    @Test
+    public void addUserWithoutName() {
+        user.setName(null);
+
+        assertEquals("login", userController.addObject(user).getName());
     }
 }
