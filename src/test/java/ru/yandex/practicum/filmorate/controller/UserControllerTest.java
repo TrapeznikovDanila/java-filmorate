@@ -6,13 +6,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 
 public class UserControllerTest {
 
     public User user = new User();
-    public UserController userController = new UserController();
+    public UserStorage userStorage = new InMemoryUserStorage();
 
     @BeforeEach
     public void setUserInfo() {
@@ -25,7 +27,7 @@ public class UserControllerTest {
 
     @Test
     public void addUserWithCorrectData() {
-        assertEquals(userController.addObject(user), user);
+        assertEquals(userStorage.addUser(user), user);
     }
 
     @Test
@@ -34,7 +36,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userController.addObject(user);
+                    userStorage.addUser(user);
                 });
 
         assertEquals("The email cannot be empty and must contain the character @", exception.getMessage());
@@ -46,7 +48,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userController.addObject(user);
+                    userStorage.addUser(user);
                 });
 
         assertEquals("The login cannot be empty and contain spaces", exception.getMessage());
@@ -58,7 +60,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userController.addObject(user);
+                    userStorage.addUser(user);
                 });
 
         assertEquals("The date of birth cannot be in the future", exception.getMessage());
@@ -68,6 +70,6 @@ public class UserControllerTest {
     public void addUserWithoutName() {
         user.setName(null);
 
-        assertEquals("login", userController.addObject(user).getName());
+        assertEquals("login", userStorage.addUser(user).getName());
     }
 }

@@ -6,13 +6,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
 public class FilmControllerTest {
 
     public Film film = new Film();
-    public FilmController filmController = new FilmController();
+    public FilmStorage filmStorage = new InMemoryFilmStorage();
 
     @BeforeEach
     public void setFilmInfo() {
@@ -24,7 +26,7 @@ public class FilmControllerTest {
 
     @Test
     public void addFilmWithCorrectData() {
-        assertEquals(filmController.addObject(film), film);
+        assertEquals(filmStorage.addFilm(film), film);
     }
 
     @Test
@@ -37,7 +39,7 @@ public class FilmControllerTest {
         film.setDescription(description);
         film.setDuration(1);
 
-        assertEquals(film, filmController.addObject(film));
+        assertEquals(film, filmStorage.addFilm(film));
     }
 
     @Test
@@ -46,7 +48,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmController.isValid(film);
+                    filmStorage.isValid(film);
                 });
 
         assertEquals("The title of the movie cannot be empty", exception.getMessage());
@@ -63,7 +65,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmController.isValid(film);
+                    filmStorage.isValid(film);
                 });
 
         assertEquals("The maximum length of a movie description is 200 characters", exception.getMessage());
@@ -75,7 +77,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmController.isValid(film);
+                    filmStorage.isValid(film);
                 });
 
         assertEquals("The release date of the film cannot be earlier than December 28, 1895",
@@ -88,7 +90,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmController.isValid(film);
+                    filmStorage.isValid(film);
                 });
 
         assertEquals("The duration of the film should be positive", exception.getMessage());
