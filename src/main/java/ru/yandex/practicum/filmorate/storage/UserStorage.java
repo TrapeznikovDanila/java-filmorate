@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface UserStorage {
 
@@ -13,7 +13,5 @@ public interface UserStorage {
 
     User updateUser(User user);
 
-    void isValid(User user);
-
-    HashMap<Long, User> getUsers();
+    Map<Long, User> getUsers();
 }

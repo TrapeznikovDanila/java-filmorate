@@ -13,10 +13,12 @@ import java.util.List;
 public class UserController extends Controller<User> {
 
     private final UserService userService;
+    private final UserValidator userValidator;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserValidator userValidator) {
         this.userService = userService;
+        this.userValidator = userValidator;
     }
 
     @Override
@@ -27,12 +29,14 @@ public class UserController extends Controller<User> {
     @Override
     @PostMapping
     public User addObject(@Valid @RequestBody User user) {
+        userValidator.isValid(user);
         return userService.getUserStorage().addUser(user);
     }
 
     @Override
     @PutMapping
     public User updateObject(@Valid @RequestBody User user) {
+        userValidator.isValid(user);
         return userService.getUserStorage().updateUser(user);
     }
 

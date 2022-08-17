@@ -13,10 +13,12 @@ import java.util.List;
 public class FilmController extends Controller<Film> {
 
     private final FilmService filmService;
+    private final FilmValidator filmValidator;
 
     @Autowired
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService, FilmValidator filmValidator) {
         this.filmService = filmService;
+        this.filmValidator = filmValidator;
     }
 
     @Override
@@ -28,12 +30,14 @@ public class FilmController extends Controller<Film> {
     @Override
     @PostMapping
     public Film addObject(@Valid @RequestBody Film film) {
+        filmValidator.isValid(film);
         return filmService.getFilmStorage().addFilm(film);
     }
 
     @Override
     @PutMapping
     public Film updateObject(@Valid @RequestBody Film film) {
+        filmValidator.isValid(film);
         return filmService.getFilmStorage().updateFilm(film);
     }
 

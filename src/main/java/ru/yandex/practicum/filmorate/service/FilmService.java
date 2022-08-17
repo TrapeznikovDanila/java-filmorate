@@ -15,7 +15,6 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
 
-
     @Autowired
     public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
@@ -53,7 +52,7 @@ public class FilmService {
         return filmStorage;
     }
 
-    public void isFilmInMemory(long id) {
+    private void isFilmInMemory(long id) {
         if (!filmStorage.getFilms().containsKey(id)) {
             throw new ObjectNotFoundException(String.format("Film id %d not found", id));
         }

@@ -56,10 +56,10 @@ public class UserService {
 
     public List<User> getSharedFriendsList(long id, long otherId) {
         List<User> sharedFriendsList = new ArrayList<>();
-        for (Long i : getUserById(id).getFriends()) {
-            for (Long y : getUserById(otherId).getFriends()) {
-                if (i == y) {
-                    sharedFriendsList.add(getUserById(i));
+        for (Long firstFriendFriendsId : getUserById(id).getFriends()) {
+            for (Long secondFriendFriendsId : getUserById(otherId).getFriends()) {
+                if (firstFriendFriendsId == secondFriendFriendsId) {
+                    sharedFriendsList.add(getUserById(firstFriendFriendsId));
                 }
             }
         }
@@ -70,7 +70,7 @@ public class UserService {
         return userStorage;
     }
 
-    public void isUserInMemory(long id) {
+    private void isUserInMemory(long id) {
         if (!userStorage.getUsers().containsKey(id)) {
             throw new ObjectNotFoundException(String.format("User id %d not found", id));
         }
