@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
@@ -15,7 +16,7 @@ public class FilmControllerTest {
 
     public Film film = new Film();
     public FilmStorage filmStorage = new InMemoryFilmStorage();
-    public FilmValidator filmValidator = new FilmValidator();
+    public FilmService filmService = new FilmService(filmStorage);
 
     @BeforeEach
     public void setFilmInfo() {
@@ -49,7 +50,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmValidator.isValid(film);
+                    filmService.isValid(film);
                 });
 
         assertEquals("The title of the movie cannot be empty", exception.getMessage());
@@ -66,7 +67,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmValidator.isValid(film);
+                    filmService.isValid(film);
                 });
 
         assertEquals("The maximum length of a movie description is 200 characters", exception.getMessage());
@@ -78,7 +79,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmValidator.isValid(film);
+                    filmService.isValid(film);
                 });
 
         assertEquals("The release date of the film cannot be earlier than December 28, 1895",
@@ -91,7 +92,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmValidator.isValid(film);
+                    filmService.isValid(film);
                 });
 
         assertEquals("The duration of the film should be positive", exception.getMessage());

@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.controller.ObjectConflictException;
 import ru.yandex.practicum.filmorate.controller.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -18,7 +17,7 @@ public class InMemoryUserStorage implements UserStorage {
     protected Map<Long, User> users = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(InMemoryUserStorage.class);
 
-    private long id = 0;
+
 
     @Override
     public List<User> getAll() {
@@ -27,14 +26,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
-        if (users.containsValue(user)) {
-            throw new ObjectConflictException("This user was already added");
-        }
-        if ((user.getName() == null) || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        id++;
-        user.setId(id);
         log.info("Added a new user with id " + user.getId());
         users.put(user.getId(), user);
         return user;

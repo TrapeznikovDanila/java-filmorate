@@ -15,21 +15,21 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
-        log.warn(e.getMessage());
+        log.error(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleObjectNotFoundException(final ObjectNotFoundException e) {
-        log.warn(e.getMessage());
+        log.error(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleObjectConflictException(final ObjectConflictException e) {
-        log.warn(e.getMessage());
+        log.error(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 

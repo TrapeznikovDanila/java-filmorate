@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.controller.ObjectConflictException;
 import ru.yandex.practicum.filmorate.controller.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -17,7 +16,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     protected Map<Long, Film> films = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(InMemoryFilmStorage.class);
-    private long id = 0;
 
     @Override
     public List<Film> getAll() {
@@ -26,11 +24,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
-        if (films.containsValue(film)) {
-            throw new ObjectConflictException("This film was already added");
-        }
-        id++;
-        film.setId(id);
         log.info("Added a new film with id " + film.getId());
         films.put(film.getId(), film);
         return film;

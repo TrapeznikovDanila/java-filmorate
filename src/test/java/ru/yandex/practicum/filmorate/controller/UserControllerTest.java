@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -15,7 +16,7 @@ public class UserControllerTest {
 
     public User user = new User();
     public UserStorage userStorage = new InMemoryUserStorage();
-    public UserValidator userValidator = new UserValidator();
+    public UserService userService = new UserService(userStorage);
 
     @BeforeEach
     public void setUserInfo() {
@@ -28,7 +29,7 @@ public class UserControllerTest {
 
     @Test
     public void addUserWithCorrectData() {
-        assertEquals(userStorage.addUser(user), user);
+        assertEquals(userService.addUser(user), user);
     }
 
     @Test
@@ -37,7 +38,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userValidator.isValid(user);
+                    userService.isValid(user);
                 });
 
         assertEquals("The email cannot be empty and must contain the character @", exception.getMessage());
@@ -49,7 +50,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userValidator.isValid(user);
+                    userService.isValid(user);
                 });
 
         assertEquals("The login cannot be empty and contain spaces", exception.getMessage());
@@ -61,7 +62,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userValidator.isValid(user);
+                    userService.isValid(user);
                 });
 
         assertEquals("The date of birth cannot be in the future", exception.getMessage());
@@ -71,6 +72,6 @@ public class UserControllerTest {
     public void addUserWithoutName() {
         user.setName(null);
 
-        assertEquals("login", userStorage.addUser(user).getName());
+        assertEquals("login", userService.addUser(user).getName());
     }
 }

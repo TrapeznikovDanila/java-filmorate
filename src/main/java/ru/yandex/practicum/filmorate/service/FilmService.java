@@ -2,11 +2,14 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.controller.ObjectConflictException;
 import ru.yandex.practicum.filmorate.controller.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,10 +17,31 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmStorage filmStorage;
+    private static final int MAX_DESCRIPTION_LENGTH = 200;
+    private static final LocalDate CINEMA_BIRTHDAY = LocalDate.of(1895, Month.DECEMBER, 28);
+    private long id = 0;
 
     @Autowired
     public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
+    }
+
+    public List<Film> getAll() {
+        return filmStorage.getAll();
+    }
+
+    public Film addFilm(Film film) {
+        if (filmStorage.getFilms().containsValue(film)) {
+            throw new ObjectConflictException("This film was already added");
+        }
+        isValid(film);
+        film.setId(++id);
+        return filmStorage.addFilm(film);
+    }
+
+    public Film updateFilm(Film film) {
+        isValid(film);
+        return filmStorage.updateFilm(film);
     }
 
     public Film addLike(long id, long userId) {
@@ -43,7 +67,7 @@ public class FilmService {
     public List<Film> getMostPopularFilms(int count) {
         return filmStorage.getFilms().values().stream()
                 .sorted((p0, p1) -> {
-                    int comp = p0.getRate().compareTo(p1.getRate()) * -1;
+                    int comp = ((Integer) p0.getRate()).compareTo(p1.getRate()) * -1;
                     return comp;
                 }).limit(count).collect(Collectors.toList());
     }
@@ -61,5 +85,17 @@ public class FilmService {
     public Film getFilmById(long id) {
         isFilmInMemory(id);
         return filmStorage.getFilms().get(id);
+    }
+
+    public void isValid(Film film) {
+        if (film.getName().isBlank()) {
+            throw new ValidationException("The title of the movie cannot be empty");
+        } else if (film.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
+            throw new ValidationException("The maximum length of a movie description is 200 characters");
+        } else if (film.getReleaseDate().isBefore(CINEMA_BIRTHDAY)) {
+            throw new ValidationException("The release date of the film cannot be earlier than December 28, 1895");
+        } else if (film.getDuration() <= 0) {
+            throw new ValidationException("The duration of the film should be positive");
+        }
     }
 }

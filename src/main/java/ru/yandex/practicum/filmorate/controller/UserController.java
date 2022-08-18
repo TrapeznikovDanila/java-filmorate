@@ -13,30 +13,26 @@ import java.util.List;
 public class UserController extends Controller<User> {
 
     private final UserService userService;
-    private final UserValidator userValidator;
 
     @Autowired
-    public UserController(UserService userService, UserValidator userValidator) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userValidator = userValidator;
     }
 
     @Override
     public List<User> getAll() {
-        return userService.getUserStorage().getAll();
+        return userService.getAll();
     }
 
     @Override
     @PostMapping
     public User addObject(@Valid @RequestBody User user) {
-        userValidator.isValid(user);
-        return userService.getUserStorage().addUser(user);
+        return userService.addUser(user);
     }
 
     @Override
     @PutMapping
     public User updateObject(@Valid @RequestBody User user) {
-        userValidator.isValid(user);
         return userService.getUserStorage().updateUser(user);
     }
 
