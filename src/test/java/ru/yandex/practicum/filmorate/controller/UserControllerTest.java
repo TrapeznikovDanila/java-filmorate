@@ -38,7 +38,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userService.isValid(user);
+                    userService.checkUser(user);
                 });
 
         assertEquals("The email cannot be empty and must contain the character @", exception.getMessage());
@@ -50,7 +50,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userService.isValid(user);
+                    userService.checkUser(user);
                 });
 
         assertEquals("The login cannot be empty and contain spaces", exception.getMessage());
@@ -62,7 +62,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userService.isValid(user);
+                    userService.checkUser(user);
                 });
 
         assertEquals("The date of birth cannot be in the future", exception.getMessage());

@@ -28,19 +28,19 @@ public class UserService {
     }
 
     public User addUser(User user) {
+        checkUser(user);
         if (userStorage.getUsers().containsValue(user)) {
             throw new ObjectConflictException("This user was already added");
         }
         if ((user.getName() == null) || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        isValid(user);
         user.setId(++id);
         return userStorage.addUser(user);
     }
 
     public User updateUser(User user) {
-        isValid(user);
+        checkUser(user);
         return userStorage.updateUser(user);
     }
 
@@ -105,13 +105,15 @@ public class UserService {
         return userStorage.getUsers().get(id);
     }
 
-    public void isValid(User user) {
-        if ((user.getEmail() == null) || (!user.getEmail().contains("@"))) {
-            throw new ValidationException("The email cannot be empty and must contain the character @");
-        } else if ((user.getLogin() == null) || (user.getLogin().contains(" "))) {
-            throw new ValidationException("The login cannot be empty and contain spaces");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("The date of birth cannot be in the future");
+    public void checkUser(User user) {
+        if (user != null) {
+            if ((user.getEmail() == null) || (!user.getEmail().contains("@"))) {
+                throw new ValidationException("The email cannot be empty and must contain the character @");
+            } else if ((user.getLogin() == null) || (user.getLogin().contains(" "))) {
+                throw new ValidationException("The login cannot be empty and contain spaces");
+            } else if (user.getBirthday().isAfter(LocalDate.now())) {
+                throw new ValidationException("The date of birth cannot be in the future");
+            }
         }
     }
 }

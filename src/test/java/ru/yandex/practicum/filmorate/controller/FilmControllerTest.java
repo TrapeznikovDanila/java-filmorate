@@ -50,7 +50,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmService.isValid(film);
+                    filmService.checkFilm(film);
                 });
 
         assertEquals("The title of the movie cannot be empty", exception.getMessage());
@@ -67,7 +67,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmService.isValid(film);
+                    filmService.checkFilm(film);
                 });
 
         assertEquals("The maximum length of a movie description is 200 characters", exception.getMessage());
@@ -79,7 +79,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmService.isValid(film);
+                    filmService.checkFilm(film);
                 });
 
         assertEquals("The release date of the film cannot be earlier than December 28, 1895",
@@ -92,7 +92,7 @@ public class FilmControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    filmService.isValid(film);
+                    filmService.checkFilm(film);
                 });
 
         assertEquals("The duration of the film should be positive", exception.getMessage());
