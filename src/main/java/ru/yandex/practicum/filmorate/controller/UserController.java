@@ -1,59 +1,63 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 public class UserController extends Controller<User> {
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-    private int id = 0;
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Override
+    public List<User> getAll() {
+        return userService.getAll();
+    }
 
     @Override
     @PostMapping
     public User addObject(@Valid @RequestBody User user) {
-        super.addObject(user);
-        if ((user.getName() == null) || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        id++;
-        user.setId(id);
-        log.info("Added a new user with id " + user.getId());
-        objects.put(user.getId(), user);
-        return user;
+        return userService.addUser(user);
     }
 
     @Override
     @PutMapping
     public User updateObject(@Valid @RequestBody User user) {
-        if (!objects.containsKey(user.getId())) {
-            log.info("The user with the id " + user.getId() + "is missing from the database");
-            throw new ValidationException("The user with the id " + user.getId() + "is missing from the database");
-        }
-        super.updateObject(user);
-        if (user.getName() == null) {
-            user.setName(user.getLogin());
-        }
-        log.info("Updated a user with id " + user.getId());
-        objects.put(user.getId(), user);
-        return user;
+        return userService.getUserStorage().updateUser(user);
     }
 
-    @Override
-    public void isValid(User user) {
-        if ((user.getEmail() == null) || (!user.getEmail().contains("@"))) {
-            throw new ValidationException("The email cannot be empty and must contain the character @");
-        } else if ((user.getLogin() == null) || (user.getLogin().contains(" "))) {
-            throw new ValidationException("The login cannot be empty and contain spaces");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("The date of birth cannot be in the future");
-        }
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        return userService.addFriends(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        return userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("{id}/friends")
+    public List<User> getFriendsList(@PathVariable Long id) {
+        return userService.getFriendsList(id);
+    }
+
+    @GetMapping("{id}/friends/common/{otherId}")
+    public List<User> getFriendsList(@PathVariable long id, @PathVariable long otherId) {
+        return userService.getSharedFriendsList(id, otherId);
+    }
+
+    @GetMapping("{id}")
+    public User getUserById(@PathVariable long id) {
+        return userService.getUserById(id);
     }
 }

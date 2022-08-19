@@ -2,17 +2,21 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserControllerTest {
 
     public User user = new User();
-    public UserController userController = new UserController();
+    public UserStorage userStorage = new InMemoryUserStorage();
+    public UserService userService = new UserService(userStorage);
 
     @BeforeEach
     public void setUserInfo() {
@@ -25,7 +29,7 @@ public class UserControllerTest {
 
     @Test
     public void addUserWithCorrectData() {
-        assertEquals(userController.addObject(user), user);
+        assertEquals(userService.addUser(user), user);
     }
 
     @Test
@@ -34,7 +38,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userController.addObject(user);
+                    userService.checkUser(user);
                 });
 
         assertEquals("The email cannot be empty and must contain the character @", exception.getMessage());
@@ -46,7 +50,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userController.addObject(user);
+                    userService.checkUser(user);
                 });
 
         assertEquals("The login cannot be empty and contain spaces", exception.getMessage());
@@ -58,7 +62,7 @@ public class UserControllerTest {
 
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> {
-                    userController.addObject(user);
+                    userService.checkUser(user);
                 });
 
         assertEquals("The date of birth cannot be in the future", exception.getMessage());
@@ -68,6 +72,6 @@ public class UserControllerTest {
     public void addUserWithoutName() {
         user.setName(null);
 
-        assertEquals("login", userController.addObject(user).getName());
+        assertEquals("login", userService.addUser(user).getName());
     }
 }
