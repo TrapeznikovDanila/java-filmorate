@@ -44,4 +44,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Map<Long, Film> getFilms() {
         return films;
     }
+
+    @Override
+    public Film getFilmById(long id) {
+        return null;
+    }
 }

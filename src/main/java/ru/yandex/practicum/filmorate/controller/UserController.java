@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -20,6 +21,7 @@ public class UserController extends Controller<User> {
     }
 
     @Override
+    @GetMapping
     public List<User> getAll() {
         return userService.getAll();
     }
@@ -33,7 +35,7 @@ public class UserController extends Controller<User> {
     @Override
     @PutMapping
     public User updateObject(@Valid @RequestBody User user) {
-        return userService.getUserStorage().updateUser(user);
+        return userService.updateUser(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -42,8 +44,8 @@ public class UserController extends Controller<User> {
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public User deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        return userService.deleteFriend(id, friendId);
+    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("{id}/friends")
@@ -57,7 +59,7 @@ public class UserController extends Controller<User> {
     }
 
     @GetMapping("{id}")
-    public User getUserById(@PathVariable long id) {
+    public Optional<User> getUserById(@PathVariable long id) {
         return userService.getUserById(id);
     }
 }

@@ -1,26 +1,35 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.ObjectConflictException;
 import ru.yandex.practicum.filmorate.controller.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
+import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserStorage userStorage;
-    private long id = 0;
+    private final FriendsDao friendsDao;
+
+    //private long id = 0;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage, FriendsDao friendsDao) {
         this.userStorage = userStorage;
+        this.friendsDao = friendsDao;
     }
 
     public List<User> getAll() {
@@ -35,74 +44,68 @@ public class UserService {
         if ((user.getName() == null) || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        user.setId(++id);
         return userStorage.addUser(user);
     }
 
     public User updateUser(User user) {
         checkUser(user);
+        isUserInMemory(user.getId());
         return userStorage.updateUser(user);
     }
 
     public User addFriends(long id, long friendId) {
         isUserInMemory(id);
         isUserInMemory(friendId);
-        if (getUserById(id).getFriends().contains(friendId)) {
-            throw new ValidationException(String.format("User id %d already has a friend id %d", id, friendId));
+        if (friendsDao.getFriends(friendId).contains(id)) {
+            throw new ValidationException(String.format("User id %d already has a friend id %d",
+                    id, friendId));
         }
-        getUserById(id).getFriends().add(friendId);
-        getUserById(friendId).getFriends().add(id);
-        return getUserById(id);
+        friendsDao.setFriends(id, friendId);
+        return getUserById(id).get();
     }
 
-    public User deleteFriend(long id, long friendId) {
+    public void deleteFriend(long id, long friendId) {
         isUserInMemory(id);
         isUserInMemory(friendId);
-        if (!getUserById(id).getFriends().contains(friendId)) {
-            throw new ValidationException(String.format("User id %d doesn't have a friend id %d", id, friendId));
+        if (!friendsDao.getFriends(id).contains(friendId)) {
+            throw new ValidationException(String.format("User id %d doesn't have a friend id %d",
+                    id, friendId));
         }
-        getUserById(id).getFriends().remove(friendId);
-        getUserById(friendId).getFriends().remove(id);
-        return getUserById(id);
+        friendsDao.deleteFriend(id, friendId);
     }
 
     public List<User> getFriendsList(long id) {
-        List<User> friendsList = new ArrayList<>();
-        for (Long i : getUserById(id).getFriends()) {
-            for (User user : userStorage.getUsers().values()) {
-                if (user.getId() == i) {
-                    friendsList.add(user);
-                }
-            }
+        isUserInMemory(id);
+        List<User> userList = new ArrayList<>();
+        List<Long> longList = friendsDao.getFriends(id);
+        for (Long l : longList) {
+            userList.add(userStorage.getUserById(l).get());
         }
-        return friendsList;
+        return userList;
     }
 
     public List<User> getSharedFriendsList(long id, long otherId) {
         List<User> sharedFriendsList = new ArrayList<>();
-        for (Long firstFriendFriendsId : getUserById(id).getFriends()) {
-            for (Long secondFriendFriendsId : getUserById(otherId).getFriends()) {
+        for (Long firstFriendFriendsId : getUserById(id).get().getFriends()) {
+            for (Long secondFriendFriendsId : getUserById(otherId).get().getFriends()) {
                 if (firstFriendFriendsId == secondFriendFriendsId) {
-                    sharedFriendsList.add(getUserById(firstFriendFriendsId));
+                    sharedFriendsList.add(getUserById(firstFriendFriendsId).get());
                 }
             }
         }
         return sharedFriendsList;
     }
 
-    public UserStorage getUserStorage() {
-        return userStorage;
-    }
-
-    private void isUserInMemory(long id) {
-        if (!userStorage.getUsers().containsKey(id)) {
+    public void isUserInMemory(long id) {
+        if (id < 0 || userStorage.getUserById(id) == null) {
+            log.info("The user with the id " + id + "is missing from the database");
             throw new ObjectNotFoundException(String.format("User id %d not found", id));
         }
     }
 
-    public User getUserById(long id) {
+    public Optional<User> getUserById(long id) {
         isUserInMemory(id);
-        return userStorage.getUsers().get(id);
+        return userStorage.getUserById(id);
     }
 
     public void checkUser(User user) {
