@@ -6,8 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.FriendsDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.FriendsDao;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -81,7 +82,7 @@ public class UserDbStorage implements UserStorage {
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         User user = new User();
-        user.setId(Long.valueOf(resultSet.getLong("user_id")));
+        user.setId(resultSet.getLong("user_id"));
         user.setEmail(resultSet.getString("user_email"));
         user.setLogin(resultSet.getString("user_login"));
         user.setName(resultSet.getString("user_name"));

@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.ObjectConflictException;
 import ru.yandex.practicum.filmorate.controller.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
-import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
-import ru.yandex.practicum.filmorate.dao.GenreDao;
-import ru.yandex.practicum.filmorate.dao.MpaDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.FilmGenreDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.GenreDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.MpaDao;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
 import java.time.LocalDate;
 import java.time.Month;

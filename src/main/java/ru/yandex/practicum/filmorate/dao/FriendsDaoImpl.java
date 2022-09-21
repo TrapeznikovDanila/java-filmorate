@@ -1,9 +1,9 @@
-package ru.yandex.practicum.filmorate.dao.impl;
+package ru.yandex.practicum.filmorate.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.FriendsDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.FriendsDao;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -77,7 +78,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         Film film = new Film();
-        film.setId(Long.valueOf(resultSet.getLong("film_id")));
+        film.setId(resultSet.getLong("film_id"));
         film.setName(resultSet.getString("film_name"));
         film.setDescription(resultSet.getString("film_description"));
         film.setReleaseDate(resultSet.getTimestamp("film_releasedate").toLocalDateTime().toLocalDate());

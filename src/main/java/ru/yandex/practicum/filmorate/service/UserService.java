@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.ObjectConflictException;
 import ru.yandex.practicum.filmorate.controller.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
-import ru.yandex.practicum.filmorate.dao.FriendsDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.FriendsDao;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

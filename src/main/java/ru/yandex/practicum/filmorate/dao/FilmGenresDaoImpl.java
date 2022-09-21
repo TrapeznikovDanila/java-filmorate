@@ -1,10 +1,13 @@
-package ru.yandex.practicum.filmorate.dao.impl;
+package ru.yandex.practicum.filmorate.dao;
 
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.FilmGenreDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.FilmGenreDao;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,12 +37,24 @@ public class FilmGenresDaoImpl implements FilmGenreDao {
         String sqlQuery1 = "delete from film_genre where film_id = ?";
         jdbcTemplate.update(sqlQuery1, filmId);
         String sqlQuery2 = "insert into film_genre(film_id, genre_id) values (?, ?)";
-        Set<Integer> sortedGenresList = new HashSet<>(genresList);
 
-        for (Integer genreId : sortedGenresList) {
-            jdbcTemplate.update(sqlQuery2,
-                    filmId,
-                    genreId);
-        }
+        jdbcTemplate.batchUpdate(sqlQuery2, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                ps.setLong(1, filmId);
+                ps.setLong(2, genresList.get(i));
+            }
+            @Override
+            public int getBatchSize() {
+                return genresList.size();
+            }
+                });
+//        Set<Integer> sortedGenresList = new HashSet<>(genresList);
+//
+//        for (Integer genreId : sortedGenresList) {
+//            jdbcTemplate.update(sqlQuery2,
+//                    filmId,
+//                    genreId);
+//        }
     }
 }
