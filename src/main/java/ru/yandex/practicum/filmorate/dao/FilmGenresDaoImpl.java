@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class FilmGenresDaoImpl implements FilmGenreDao {
@@ -36,17 +37,22 @@ public class FilmGenresDaoImpl implements FilmGenreDao {
     public void setFilmsGenres(long filmId, List<Integer> genresList) {
         String sqlQuery1 = "delete from film_genre where film_id = ?";
         jdbcTemplate.update(sqlQuery1, filmId);
-        String sqlQuery2 = "insert into film_genre(film_id, genre_id) values (?, ?)";
 
+        List<Integer> finalGenresList = genresList.stream().
+                collect(Collectors.toSet()).
+                stream().
+                collect(Collectors.toList());
+
+        String sqlQuery2 = "insert into film_genre(film_id, genre_id) values (?, ?)";
         jdbcTemplate.batchUpdate(sqlQuery2, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 ps.setLong(1, filmId);
-                ps.setLong(2, genresList.get(i));
+                ps.setLong(2, finalGenresList.get(i));
             }
             @Override
             public int getBatchSize() {
-                return genresList.size();
+                return finalGenresList.size();
             }
                 });
     }
