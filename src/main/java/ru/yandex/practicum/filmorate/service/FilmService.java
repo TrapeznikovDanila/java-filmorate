@@ -18,7 +18,10 @@ import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,7 +51,11 @@ public class FilmService {
     }
 
     public List<Film> getAll() {
-        return filmStorage.getAll();
+        List<Film> filmsList = filmStorage.getAll();
+        for (Film film : filmsList) {
+            film.setGenres(getFilmGenres(film.getId()));
+        }
+        return filmsList;
     }
 
     public Film addFilm(Film film) {
@@ -153,9 +160,12 @@ public class FilmService {
     }
 
     private List<Genre> getFilmGenres(long id) {
-        return filmGenreDao.getFilmGenres(id).stream()
-                .map(i -> genreDao.getGenre(i))
-                .collect(Collectors.toList());
+        List<Integer> genresIdList = filmGenreDao.getFilmGenres(id);
+        List<Genre> genresList = new ArrayList<>();
+        for (Integer i : genresIdList) {
+            genresList.add(genreDao.getGenre(i));
+        }
+        return genresList;
     }
 
     private List<Genre> deleteRepeatGenres(Film film) {
