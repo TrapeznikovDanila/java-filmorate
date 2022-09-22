@@ -49,12 +49,5 @@ public class FilmGenresDaoImpl implements FilmGenreDao {
                 return genresList.size();
             }
                 });
-//        Set<Integer> sortedGenresList = new HashSet<>(genresList);
-//
-//        for (Integer genreId : sortedGenresList) {
-//            jdbcTemplate.update(sqlQuery2,
-//                    filmId,
-//                    genreId);
-//        }
     }
 }
