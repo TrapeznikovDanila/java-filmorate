@@ -22,7 +22,7 @@ public class FilmController extends Controller<Film> {
     @Override
     @GetMapping
     public List<Film> getAll() {
-        return filmService.getFilmStorage().getAll();
+        return filmService.getAll();
     }
 
     @Override

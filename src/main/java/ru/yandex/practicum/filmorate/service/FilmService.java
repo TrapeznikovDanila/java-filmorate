@@ -1,33 +1,61 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.ObjectConflictException;
 import ru.yandex.practicum.filmorate.controller.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
+import ru.yandex.practicum.filmorate.dao.interfaces.FilmGenreDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.GenreDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.MpaDao;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
 
+    private static final Logger log = LoggerFactory.getLogger(FilmService.class);
     private final FilmStorage filmStorage;
+    private final MpaDao mpaDao;
+    private final GenreDao genreDao;
+    private final FilmGenreDao filmGenreDao;
+    private final UserService userService;
     private static final int MAX_DESCRIPTION_LENGTH = 200;
     private static final LocalDate CINEMA_BIRTHDAY = LocalDate.of(1895, Month.DECEMBER, 28);
-    private long id = 0;
+
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage,
+                       MpaDao mpaDao,
+                       GenreDao genreDao,
+                       FilmGenreDao filmGenreDao,
+                       UserService userService) {
         this.filmStorage = filmStorage;
+        this.mpaDao = mpaDao;
+        this.genreDao = genreDao;
+        this.filmGenreDao = filmGenreDao;
+        this.userService = userService;
     }
 
     public List<Film> getAll() {
-        return filmStorage.getAll();
+        List<Film> filmsList = filmStorage.getAll();
+        for (Film film : filmsList) {
+            film.setGenres(getFilmGenres(film.getId()));
+        }
+        return filmsList;
     }
 
     public Film addFilm(Film film) {
@@ -35,33 +63,38 @@ public class FilmService {
         if (filmStorage.getFilms().containsValue(film)) {
             throw new ObjectConflictException("This film was already added");
         }
-        film.setId(++id);
-        return filmStorage.addFilm(film);
+        Film addedFilm = filmStorage.addFilm(film);
+        setFilmGenre(addedFilm);
+        return addedFilm;
     }
 
     public Film updateFilm(Film film) {
         checkFilm(film);
-        return filmStorage.updateFilm(film);
+        isFilmInMemory(film.getId());
+        Film updatedFilm = filmStorage.updateFilm(film);
+        film.setGenres(deleteRepeatGenres(film));
+        setFilmGenre(film);
+        return updatedFilm;
     }
 
     public Film addLike(long id, long userId) {
         isFilmInMemory(id);
-        if (getFilmById(id).getLikes().contains(userId)) {
-            throw new ValidationException(String.format("User id %d has already liked film id %d", userId, id));
-        }
-        getFilmById(id).getLikes().add(userId);
-        getFilmById(id).setRate(getFilmById(id).getRate() + 1);
-        return getFilmById(id);
+        userService.isUserInMemory(userId);
+        Film film = getFilmById(id);
+        film.getLikes().add(userId);
+        film.setRate(film.getRate() + 1);
+        updateFilm(film);
+        return film;
     }
 
     public Film deleteLike(long id, long userId) {
         isFilmInMemory(id);
-        if (!getFilmById(id).getLikes().contains(userId)) {
-            throw new ObjectNotFoundException(String.format("User id %d didn't like film id %d", userId, id));
-        }
-        getFilmById(id).getLikes().remove(userId);
-        getFilmById(id).setRate(getFilmById(id).getRate() - 1);
-        return getFilmById(id);
+        userService.isUserInMemory(userId);
+        Film film = getFilmById(id);
+        film.getLikes().remove(userId);
+        film.setRate(film.getRate() - 1);
+        updateFilm(film);
+        return film;
     }
 
     public List<Film> getMostPopularFilms(int count) {
@@ -72,19 +105,18 @@ public class FilmService {
                 }).limit(count).collect(Collectors.toList());
     }
 
-    public FilmStorage getFilmStorage() {
-        return filmStorage;
-    }
-
     private void isFilmInMemory(long id) {
-        if (!filmStorage.getFilms().containsKey(id)) {
+        if (id < 0 || filmStorage.getFilmById(id) == null) {
+            log.info("The film with the id " + id + "is missing from the database");
             throw new ObjectNotFoundException(String.format("Film id %d not found", id));
         }
     }
 
     public Film getFilmById(long id) {
         isFilmInMemory(id);
-        return filmStorage.getFilms().get(id);
+        Film film = filmStorage.getFilmById(id);
+        film.setGenres(getFilmGenres(id));
+        return film;
     }
 
     public void checkFilm(Film film) {
@@ -99,5 +131,41 @@ public class FilmService {
                 throw new ValidationException("The duration of the film should be positive");
             }
         }
+    }
+
+    public List<Mpa> getMpaList() {
+        return mpaDao.getMpaList();
+    }
+
+    public Mpa getMpa(int id) {
+        return mpaDao.getMpa(id);
+    }
+
+    public List<Genre> getGenresList() {
+        return genreDao.getGenresList();
+    }
+
+    public Genre getGenre(int id) {
+        return genreDao.getGenre(id);
+    }
+
+    private void setFilmGenre(Film film) {
+        List<Integer> genreIdList = film.getGenres().stream()
+                .map(Genre::getId).collect(Collectors.toList());
+        filmGenreDao.setFilmsGenres(film.getId(), genreIdList);
+    }
+
+    private List<Genre> getFilmGenres(long id) {
+        List<Integer> genresIdList = filmGenreDao.getFilmGenres(id);
+        List<Genre> genresList = new ArrayList<>();
+        for (Integer i : genresIdList) {
+            genresList.add(genreDao.getGenre(i));
+        }
+        return genresList;
+    }
+
+    private List<Genre> deleteRepeatGenres(Film film) {
+        Set<Genre> genresSet = new LinkedHashSet<>(film.getGenres());
+        return new ArrayList<>(genresSet);
     }
 }

@@ -5,18 +5,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.controller.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-@Component
+@Component("InMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
 
     protected Map<Long, User> users = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(InMemoryUserStorage.class);
-
 
 
     @Override
@@ -49,5 +46,10 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public Map<Long, User> getUsers() {
         return users;
+    }
+
+    @Override
+    public Optional<User> getUserById(long id) {
+        return null;
     }
 }

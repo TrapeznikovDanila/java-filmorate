@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.interfaces;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -14,4 +14,6 @@ public interface FilmStorage {
     Film updateFilm(Film film);
 
     Map<Long, Film> getFilms();
+
+    Film getFilmById(long id);
 }
