@@ -105,10 +105,6 @@ public class FilmService {
                 }).limit(count).collect(Collectors.toList());
     }
 
-    public FilmStorage getFilmStorage() {
-        return filmStorage;
-    }
-
     private void isFilmInMemory(long id) {
         if (id < 0 || filmStorage.getFilmById(id) == null) {
             log.info("The film with the id " + id + "is missing from the database");

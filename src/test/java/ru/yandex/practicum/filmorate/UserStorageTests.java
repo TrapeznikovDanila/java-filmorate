@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.dao.FriendsDaoImpl;
+import ru.yandex.practicum.filmorate.dao.FriendDaoImpl;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserStorageTests {
     private final UserDbStorage userStorage;
-    private final FriendsDaoImpl friendsDao;
+    private final FriendDaoImpl friendsDao;
 
 
     @Test

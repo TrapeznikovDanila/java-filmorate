@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class FilmGenresDaoImpl implements FilmGenreDao {
+public class FilmGenreDaoImpl implements FilmGenreDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public FilmGenresDaoImpl(JdbcTemplate jdbcTemplate) {
+    public FilmGenreDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -36,10 +36,10 @@ public class FilmGenresDaoImpl implements FilmGenreDao {
         String sqlQuery1 = "delete from film_genre where film_id = ?";
         jdbcTemplate.update(sqlQuery1, filmId);
 
-        List<Integer> finalGenresList = genresList.stream().
-                collect(Collectors.toSet()).
-                stream().
-                collect(Collectors.toList());
+        List<Integer> finalGenresList = genresList.stream()
+                        .collect(Collectors.toSet())
+                                .stream()
+                                        .collect(Collectors.toList());
 
         String sqlQuery2 = "insert into film_genre(film_id, genre_id) values (?, ?)";
         jdbcTemplate.batchUpdate(sqlQuery2, new BatchPreparedStatementSetter() {
@@ -48,10 +48,11 @@ public class FilmGenresDaoImpl implements FilmGenreDao {
                 ps.setLong(1, filmId);
                 ps.setLong(2, finalGenresList.get(i));
             }
+
             @Override
             public int getBatchSize() {
                 return finalGenresList.size();
             }
-                });
+        });
     }
 }

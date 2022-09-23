@@ -28,10 +28,10 @@ public class MpaDaoImpl implements MpaDao {
         SqlRowSet mpaRows = jdbcTemplate.queryForRowSet("select * from films_mpa where mpa_id = ?",
                 id);
         if (mpaRows.next()) {
-            return Mpa.builder().
-                    id(mpaRows.getInt("mpa_id")).
-                    name(mpaRows.getString("mpa_name")).
-                    build();
+            return Mpa.builder()
+                            .id(mpaRows.getInt("mpa_id"))
+                                    .name(mpaRows.getString("mpa_name"))
+                                            .build();
         } else {
             log.info("Mpa id %d not found", id);
             throw new ObjectNotFoundException(String.format("Mpa id %d not found", id));
@@ -45,9 +45,9 @@ public class MpaDaoImpl implements MpaDao {
     }
 
     private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {
-        return Mpa.builder().
-                id(resultSet.getInt("mpa_id")).
-                name(resultSet.getString("mpa_name")).
-                build();
+        return Mpa.builder()
+                        .id(resultSet.getInt("mpa_id"))
+                                .name(resultSet.getString("mpa_name"))
+                                        .build();
     }
 }

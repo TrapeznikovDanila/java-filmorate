@@ -3,16 +3,16 @@ package ru.yandex.practicum.filmorate.dao;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.interfaces.FriendsDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.FriendDao;
 
 import java.util.ArrayList;
 import java.util.List;
 @Component
-public class FriendsDaoImpl implements FriendsDao {
+public class FriendDaoImpl implements FriendDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public FriendsDaoImpl(JdbcTemplate jdbcTemplate) {
+    public FriendDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

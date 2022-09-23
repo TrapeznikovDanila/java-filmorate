@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.interfaces.FriendsDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.FriendDao;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
@@ -22,10 +22,10 @@ public class UserDbStorage implements UserStorage {
 
     private static final Logger log = LoggerFactory.getLogger(UserDbStorage.class);
     private final JdbcTemplate jdbcTemplate;
-    private final FriendsDao friendsDao;
+    private final FriendDao friendsDao;
 
     @Autowired
-    public UserDbStorage(JdbcTemplate jdbcTemplate, FriendsDao friendsDao) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, FriendDao friendsDao) {
         this.jdbcTemplate = jdbcTemplate;
         this.friendsDao = friendsDao;
     }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.ObjectConflictException;
 import ru.yandex.practicum.filmorate.controller.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.controller.ValidationException;
-import ru.yandex.practicum.filmorate.dao.interfaces.FriendsDao;
+import ru.yandex.practicum.filmorate.dao.interfaces.FriendDao;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
@@ -22,12 +22,10 @@ public class UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserStorage userStorage;
-    private final FriendsDao friendsDao;
-
-    //private long id = 0;
+    private final FriendDao friendsDao;
 
     @Autowired
-    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage, FriendsDao friendsDao) {
+    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage, FriendDao friendsDao) {
         this.userStorage = userStorage;
         this.friendsDao = friendsDao;
     }

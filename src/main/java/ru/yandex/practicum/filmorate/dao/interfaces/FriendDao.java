@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.dao.interfaces;
 
 import java.util.List;
 
-public interface FriendsDao {
+public interface FriendDao {
 
     List<Long> getFriends(long userId);
 
